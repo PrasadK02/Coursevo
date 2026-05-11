@@ -3,12 +3,15 @@ export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
-      colors: {
-        primary:   "#1D4ED8",
-        secondary: "#7C3AED",
-      },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Montserrat", "sans-serif"],
+      },
+      colors: {
+        accent:   "#68BA7F",
+        "accent-hover": "#7dcc95",
+        surface:  "#253D2C",
+        base:     "#1a2e20",
+        elevated: "#2d4a34",
       },
     },
   },

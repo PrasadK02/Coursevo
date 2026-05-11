@@ -8,90 +8,179 @@ export default function Login() {
   const navigate  = useNavigate();
   const location  = useLocation();
   const { loading, error, token } = useSelector((s) => s.auth);
-
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPass, setShowPass] = useState(false);
 
-  // Agar pehle kisi protected page pe tha to wapas wahan bhejo
   const from = location.state?.from?.pathname || "/";
+  useEffect(() => { if (token) navigate(from, { replace: true }); }, [token]);
+  useEffect(() => () => dispatch(clearError()), []);
 
-  useEffect(() => {
-    if (token) navigate(from, { replace: true });
-  }, [token, navigate, from]);
-
-  useEffect(() => () => dispatch(clearError()), [dispatch]);
-
-  const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(login(form));
-  };
+  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleSubmit = (e) => { e.preventDefault(); dispatch(login(form)); };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 w-full max-w-md p-8">
+    <div style={{
+      minHeight: "100vh",
+      background: "var(--bg-base)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+    }}>
+      {/* Background decoration */}
+      <div style={{
+        position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0,
+      }}>
+        <div style={{
+          position: "absolute", top: "-20%", right: "-10%",
+          width: 500, height: 500,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(104,186,127,0.06) 0%, transparent 70%)",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "-20%", left: "-10%",
+          width: 400, height: 400,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(104,186,127,0.04) 0%, transparent 70%)",
+        }} />
+      </div>
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-lg">C</span>
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 420 }}
+        className="stagger">
+
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <div style={{
+            width: 52, height: 52,
+            background: "var(--accent)",
+            borderRadius: 14,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 16px",
+            boxShadow: "0 0 30px rgba(104,186,127,0.3)",
+          }}>
+            <i className="fa-solid fa-leaf" style={{ color: "var(--text-inverse)", fontSize: 22 }} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to your account</p>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+            Welcome back
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 6 }}>
+            Sign in to continue learning
+          </p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-6">
-            {error}
+        {/* Card */}
+        <div style={{
+          background: "var(--bg-surface)",
+          border:     "1px solid var(--border)",
+          borderRadius: "var(--radius-xl)",
+          padding: 32,
+          boxShadow: "var(--shadow-lg)",
+        }}>
+
+          {error && (
+            <div className="alert-error" style={{ marginBottom: 20 }}>
+              <i className="fa-solid fa-circle-exclamation" />
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+              {/* Email */}
+              <div>
+                <label className="label">Email address</label>
+                <div style={{ position: "relative" }}>
+                  <i className="fa-solid fa-envelope" style={{
+                    position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                    color: "var(--text-muted)", fontSize: 13,
+                  }} />
+                  <input
+                    className="input" type="email" name="email"
+                    value={form.email} onChange={handleChange} required
+                    placeholder="you@example.com"
+                    style={{ paddingLeft: 40 }}
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="label">Password</label>
+                <div style={{ position: "relative" }}>
+                  <i className="fa-solid fa-lock" style={{
+                    position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                    color: "var(--text-muted)", fontSize: 13,
+                  }} />
+                  <input
+                    className="input" type={showPass ? "text" : "password"}
+                    name="password" value={form.password} onChange={handleChange} required
+                    placeholder="Enter your password"
+                    style={{ paddingLeft: 40, paddingRight: 44 }}
+                  />
+                  <button type="button" onClick={() => setShowPass((v) => !v)} style={{
+                    position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                    background: "none", border: "none", cursor: "pointer",
+                    color: "var(--text-muted)", padding: 0,
+                  }}>
+                    <i className={`fa-solid ${showPass ? "fa-eye-slash" : "fa-eye"}`} style={{ fontSize: 13 }} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit */}
+              <button type="submit" disabled={loading} className="btn-primary"
+                style={{ width: "100%", padding: "12px 0", fontSize: 15, marginTop: 4 }}>
+                {loading ? (
+                  <><span className="spinner" style={{ width: 16, height: 16 }} /> Signing in...</>
+                ) : (
+                  <><i className="fa-solid fa-arrow-right-to-bracket" /> Sign in</>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Divider */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0" }}>
+            <hr className="divider" style={{ flex: 1 }} />
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>QUICK TEST</span>
+            <hr className="divider" style={{ flex: 1 }} />
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-            <input
-              type="email" name="email" value={form.email} onChange={handleChange} required
-              placeholder="you@example.com"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-            <input
-              type="password" name="password" value={form.password} onChange={handleChange} required
-              placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-            />
-          </div>
-
-          <button type="submit" disabled={loading}
-            className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
-
-        {/* Quick test credentials */}
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-xs font-medium text-gray-500 mb-2">Test credentials:</p>
-          <div className="flex gap-2">
-            <button onClick={() => setForm({ email: "student@test.com",    password: "123456" })}
-              className="flex-1 text-xs bg-white border border-gray-200 rounded-md py-1.5 hover:border-blue-300 hover:text-blue-600 transition-colors">
-              Student
-            </button>
-            <button onClick={() => setForm({ email: "instructor@test.com", password: "123456" })}
-              className="flex-1 text-xs bg-white border border-gray-200 rounded-md py-1.5 hover:border-blue-300 hover:text-blue-600 transition-colors">
-              Instructor
-            </button>
+          {/* Test credentials */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {[
+              { label: "Student",    icon: "fa-graduation-cap", email: "student@test.com" },
+              { label: "Instructor", icon: "fa-chalkboard-user", email: "instructor@test.com" },
+            ].map(({ label, icon, email }) => (
+              <button key={label} type="button"
+                onClick={() => setForm({ email, password: "123456" })}
+                style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                  padding: "12px 8px",
+                  background: "var(--bg-elevated)",
+                  border: "1px solid var(--border-strong)",
+                  borderRadius: "var(--radius-md)",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  fontFamily: "Montserrat, sans-serif",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent-border)"; e.currentTarget.style.background = "var(--accent-dim)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.background = "var(--bg-elevated)"; }}
+              >
+                <i className={`fa-solid ${icon}`} style={{ fontSize: 18, color: "var(--accent)" }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>{label}</span>
+                <span style={{ fontSize: 10, color: "var(--text-muted)" }}>test@test.com</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p style={{ textAlign: "center", color: "var(--text-muted)", fontSize: 13, marginTop: 20 }}>
           Don't have an account?{" "}
-          <Link to="/register" className="text-blue-600 font-medium hover:underline">Sign up</Link>
+          <Link to="/register" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
+            Create one free
+          </Link>
         </p>
       </div>
     </div>

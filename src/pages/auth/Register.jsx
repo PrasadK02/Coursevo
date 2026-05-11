@@ -4,119 +4,180 @@ import { useDispatch, useSelector } from "react-redux";
 import { register, clearError } from "../../features/auth/authSlice";
 
 export default function Register() {
-  const dispatch  = useDispatch();
-  const navigate  = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { loading, error, token } = useSelector((s) => s.auth);
-
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "student" });
+  const [showPass, setShowPass] = useState(false);
 
-  // Already logged in hai to home pe bhejo
-  useEffect(() => {
-    if (token) navigate("/");
-  }, [token, navigate]);
+  useEffect(() => { if (token) navigate("/"); }, [token]);
+  useEffect(() => () => dispatch(clearError()), []);
 
-  // Component unmount pe error clear karo
-  useEffect(() => () => dispatch(clearError()), [dispatch]);
-
-  const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(register(form));
-  };
+  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleSubmit = (e) => { e.preventDefault(); dispatch(register(form)); };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 w-full max-w-md p-8">
+    <div style={{
+      minHeight: "100vh",
+      background: "var(--bg-base)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 24,
+    }}>
+      <div style={{
+        position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none",
+      }}>
+        <div style={{
+          position: "absolute", top: "-15%", left: "-5%",
+          width: 450, height: 450, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(104,186,127,0.07) 0%, transparent 70%)",
+        }} />
+      </div>
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-lg">C</span>
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 460 }}
+        className="stagger">
+
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{
+            width: 52, height: 52, background: "var(--accent)", borderRadius: 14,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 16px",
+            boxShadow: "0 0 30px rgba(104,186,127,0.3)",
+          }}>
+            <i className="fa-solid fa-leaf" style={{ color: "var(--text-inverse)", fontSize: 22 }} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
-          <p className="text-gray-500 text-sm mt-1">Join Coursevo and start learning</p>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+            Join Coursevo
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 6 }}>
+            Start your learning journey today
+          </p>
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-6">
-            {error}
-          </div>
-        )}
+        <div style={{
+          background: "var(--bg-surface)", border: "1px solid var(--border)",
+          borderRadius: "var(--radius-xl)", padding: 32, boxShadow: "var(--shadow-lg)",
+        }}>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="alert-error" style={{ marginBottom: 20 }}>
+              <i className="fa-solid fa-circle-exclamation" /> {error}
+            </div>
+          )}
 
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
-            <input
-              type="text" name="name" value={form.name} onChange={handleChange} required
-              placeholder="John Doe"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-            <input
-              type="email" name="email" value={form.email} onChange={handleChange} required
-              placeholder="you@example.com"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-            <input
-              type="password" name="password" value={form.password} onChange={handleChange} required
-              placeholder="Min. 6 characters"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-            />
-          </div>
-
-          {/* Role */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">I want to</label>
-            <div className="grid grid-cols-2 gap-3">
+          {/* Role selector — top */}
+          <div style={{ marginBottom: 24 }}>
+            <label className="label">I want to</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {[
-                { value: "student",    label: "Learn",  icon: "🎓", desc: "Take courses" },
-                { value: "instructor", label: "Teach",  icon: "📚", desc: "Create courses" },
-              ].map(({ value, label, icon, desc }) => (
-                <label key={value}
-                  className={`flex flex-col items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                    form.role === value
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio" name="role" value={value}
+                { value: "student",    icon: "fa-graduation-cap", label: "Learn",  desc: "Enroll in courses" },
+                { value: "instructor", icon: "fa-chalkboard-user", label: "Teach", desc: "Create & sell courses" },
+              ].map(({ value, icon, label, desc }) => (
+                <label key={value} style={{
+                  display: "flex", flexDirection: "column", alignItems: "center",
+                  gap: 6, padding: 16,
+                  border:  `2px solid ${form.role === value ? "var(--accent)" : "var(--border-strong)"}`,
+                  borderRadius: "var(--radius-lg)",
+                  background: form.role === value ? "var(--accent-dim)" : "var(--bg-elevated)",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}>
+                  <input type="radio" name="role" value={value}
                     checked={form.role === value} onChange={handleChange}
-                    className="sr-only"
-                  />
-                  <span className="text-2xl mb-1">{icon}</span>
-                  <span className="text-sm font-semibold text-gray-900">{label}</span>
-                  <span className="text-xs text-gray-500">{desc}</span>
+                    style={{ display: "none" }} />
+                  <div style={{
+                    width: 38, height: 38,
+                    background: form.role === value ? "var(--accent)" : "var(--bg-surface)",
+                    borderRadius: "var(--radius-md)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all 0.2s",
+                  }}>
+                    <i className={`fa-solid ${icon}`} style={{
+                      fontSize: 16,
+                      color: form.role === value ? "var(--text-inverse)" : "var(--text-muted)",
+                    }} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>{label}</span>
+                  <span style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center" }}>{desc}</span>
+                  {form.role === value && (
+                    <span style={{ position: "absolute" }} />
+                  )}
                 </label>
               ))}
             </div>
           </div>
 
-          {/* Submit */}
-          <button type="submit" disabled={loading}
-            className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2"
-          >
-            {loading ? "Creating account..." : "Create account"}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+              {/* Name */}
+              <div>
+                <label className="label">Full name</label>
+                <div style={{ position: "relative" }}>
+                  <i className="fa-solid fa-user" style={{
+                    position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                    color: "var(--text-muted)", fontSize: 13,
+                  }} />
+                  <input className="input" type="text" name="name"
+                    value={form.name} onChange={handleChange} required
+                    placeholder="John Doe" style={{ paddingLeft: 40 }} />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="label">Email address</label>
+                <div style={{ position: "relative" }}>
+                  <i className="fa-solid fa-envelope" style={{
+                    position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                    color: "var(--text-muted)", fontSize: 13,
+                  }} />
+                  <input className="input" type="email" name="email"
+                    value={form.email} onChange={handleChange} required
+                    placeholder="you@example.com" style={{ paddingLeft: 40 }} />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="label">Password</label>
+                <div style={{ position: "relative" }}>
+                  <i className="fa-solid fa-lock" style={{
+                    position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+                    color: "var(--text-muted)", fontSize: 13,
+                  }} />
+                  <input className="input" type={showPass ? "text" : "password"}
+                    name="password" value={form.password} onChange={handleChange} required
+                    placeholder="Min. 6 characters"
+                    style={{ paddingLeft: 40, paddingRight: 44 }} />
+                  <button type="button" onClick={() => setShowPass((v) => !v)} style={{
+                    position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                    background: "none", border: "none", cursor: "pointer",
+                    color: "var(--text-muted)", padding: 0,
+                  }}>
+                    <i className={`fa-solid ${showPass ? "fa-eye-slash" : "fa-eye"}`} style={{ fontSize: 13 }} />
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" disabled={loading} className="btn-primary"
+                style={{ width: "100%", padding: "12px 0", fontSize: 15, marginTop: 4 }}>
+                {loading ? (
+                  <><span className="spinner" style={{ width: 16, height: 16 }} /> Creating account...</>
+                ) : (
+                  <><i className="fa-solid fa-rocket" /> Create account</>
+                )}
+              </button>
+
+            </div>
+          </form>
+        </div>
+
+        <p style={{ textAlign: "center", color: "var(--text-muted)", fontSize: 13, marginTop: 20 }}>
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium hover:underline">Sign in</Link>
+          <Link to="/login" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
+            Sign in
+          </Link>
         </p>
       </div>
     </div>
