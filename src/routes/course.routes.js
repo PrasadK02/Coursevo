@@ -9,6 +9,7 @@ const {
   deleteCourse,
   addLesson,
   getMyCourses,
+  deleteLesson,
 } = require('../controllers/course.controller');
 
 const { protect }      = require('../middleware/auth.middleware');
@@ -62,6 +63,12 @@ router.post(
   addLessonValidator,
   validate,
   addLesson
+);
+router.delete(
+  '/:id/lessons/:lessonId',
+  protect,
+  restrictTo('instructor'),
+  deleteLesson
 );
 
 // ── Public route (must be AFTER /my to avoid conflict) ───────────

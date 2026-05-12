@@ -197,6 +197,40 @@ const getMyCourses = async (req, res, next) => {
     next(err);
   }
 };
+// ─── DELETE /courses/:id/lessons/:lessonId ────────────────────────
+const deleteLesson = async (req, res, next) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) return next(new ApiError(404, 'Course not found'));
+
+    if (!course.instructor.equals(req.user._id)) {
+      return next(new ApiError(403, 'You are not the owner of this course'));
+    }
+
+    // Pull the lesson out of the array by its _id
+    const lessonIndex = course.lessons.findIndex(
+      (l) => l._id.toString() === req.params.lessonId
+    );
+
+    if (lessonIndex === -1) {
+      return next(new ApiError(404, 'Lesson not found'));
+    }
+
+    course.lessons.splice(lessonIndex, 1);
+
+    // Re-order remaining lessons
+    course.lessons.forEach((l, i) => { l.order = i + 1; });
+
+    await course.save();
+
+    return res.status(200).json(
+      new ApiResponse(200, null, 'Lesson deleted successfully')
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 module.exports = {
   getAllCourses,
@@ -206,4 +240,5 @@ module.exports = {
   deleteCourse,
   addLesson,
   getMyCourses,
+  deleteLesson,
 };
