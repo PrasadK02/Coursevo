@@ -123,15 +123,17 @@ export const enroll = createAsyncThunk(
   },
 );
 
-export const getMyEnrollments = createAsyncThunk(
-  "courses/getEnrollments",
+export const getMyEnrollments = createAsyncThunk("courses/getEnrollments",
   async (_, { rejectWithValue }) => {
     try {
-      return (await fetchMyEnrollments()).data.data.enrollments;
+      const res = await fetchMyEnrollments();
+      console.log("Enrollments API response:", res.data); // debug
+      return res.data.data.enrollments;
     } catch (e) {
+      console.error("Enrollments error:", e.response?.data);
       return rejectWithValue(e.response?.data?.message || "Failed");
     }
-  },
+  }
 );
 
 export const markLessonComplete = createAsyncThunk(

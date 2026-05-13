@@ -40,7 +40,7 @@ export default function App() {
           <ProtectedRoute role="student"><MyCourses /></ProtectedRoute>
         } />
         <Route path="/courses/:id/chat" element={
-          <ProtectedRoute role="student"><AIChatbot /></ProtectedRoute>
+          <ProtectedRoute><AIChatbot /></ProtectedRoute>
         } />
         <Route path="/courses/:id/quiz" element={
           <ProtectedRoute role="student"><QuizPage /></ProtectedRoute>
