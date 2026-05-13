@@ -15,7 +15,7 @@ const { restrictTo } = require('../middleware/role.middleware');
 router.use(protect);
 
 router.post('/generate/:courseId', restrictTo('instructor'), generateCourseQuiz);
-router.get('/:courseId',           restrictTo('student'),    getQuiz);
+router.get('/:courseId',   getQuiz);
 router.post('/:courseId/attempt',  restrictTo('student'),    submitAttempt);
 router.get('/:courseId/results',   restrictTo('student'),    getMyResults);
 

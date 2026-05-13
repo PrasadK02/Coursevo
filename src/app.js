@@ -18,8 +18,8 @@ app.use(logger);
 app.use('/api/v1/auth',        authRoutes);
 app.use('/api/v1/courses',     courseRoutes);
 app.use('/api/v1/enrollments', enrollmentRoutes);
-app.use('/api/v1/ai',          aiRoutes);     // NEW
-app.use('/api/v1/quizzes',     quizRoutes);   // NEW
+app.use('/api/v1/ai',          aiRoutes);     
+app.use('/api/v1/quizzes',     quizRoutes);   
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));

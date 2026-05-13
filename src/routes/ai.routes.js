@@ -2,7 +2,6 @@ const express    = require('express');
 const router     = express.Router();
 const { chat }   = require('../controllers/ai.controller');
 const { protect }    = require('../middleware/auth.middleware');
-const { restrictTo } = require('../middleware/role.middleware');
 
 // Only enrolled students should ask questions ideally,
 // but for simplicity any logged-in user can use the chatbot
